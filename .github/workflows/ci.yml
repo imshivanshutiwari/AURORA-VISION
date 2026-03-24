@@ -40,7 +40,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install \
-            torch==2.3.0 torchvision==0.18.0 --index-url https://download.pytorch.org/whl/cpu
+            torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
           pip install \
             sacrebleu rouge-score nltk bert-score \
             pyyaml python-dotenv numpy scipy \
