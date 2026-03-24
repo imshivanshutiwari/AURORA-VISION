@@ -1,0 +1,18 @@
+metrics:
+  - bleu4
+  - rouge_l
+  - meteor
+  - bertscore
+
+bertscore_model: "microsoft/deberta-xlarge-mnli"
+quality_threshold: 0.6
+
+bleu:
+  max_ngram: 4
+  smooth: true
+
+rouge:
+  metrics: ["rouge1", "rouge2", "rougeL"]
+
+retrieval:
+  k_values: [1, 5, 10]

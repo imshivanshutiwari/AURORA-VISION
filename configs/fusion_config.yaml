@@ -1,0 +1,12 @@
+hidden_dim: 512
+n_heads: 8
+n_layers: 3
+dropout: 0.1
+modality_gate: true
+temporal_window: 8
+
+visual_input_dim: 768
+audio_input_dim: 512
+text_input_dim: 768
+
+output_dim: 512

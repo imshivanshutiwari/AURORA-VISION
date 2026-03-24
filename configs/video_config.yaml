@@ -1,0 +1,19 @@
+sampling:
+  uniform_n_frames: 32
+  adaptive_min: 16
+  adaptive_max: 64
+  scene_threshold: 30.0
+  target_fps: 1
+
+resolution:
+  clip_size: 224
+  swin_size: 224
+  timesformer_size: 224
+
+audio:
+  sample_rate: 16000
+  chunk_duration_s: 30
+
+output:
+  frame_format: "RGB"
+  normalize: true

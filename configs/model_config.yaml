@@ -1,0 +1,22 @@
+visual:
+  clip_model: "ViT-L/14"
+  swin_model: "microsoft/swin-tiny-patch4-window7-224"
+  timesformer: "facebook/timesformer-base-finetuned-k400"
+
+audio:
+  whisper_model: "large-v3"
+  whisper_beam_size: 5
+  whisper_best_of: 5
+  whisper_temperature: 0.0
+  diarization: "pyannote/speaker-diarization-3.1"
+
+ocr:
+  trocr_model: "microsoft/trocr-large-printed"
+  text_detection: "EAST"
+  confidence_threshold: 0.5
+
+llm:
+  provider: "openai"
+  model: "gpt-4o"
+  temperature: 0.1
+  max_tokens: 1024
