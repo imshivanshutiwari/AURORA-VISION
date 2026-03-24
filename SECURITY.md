@@ -35,14 +35,16 @@ AURORA-VISION.
 - **Advisory:** Unauthenticated HTTP POST to `nltk.app.wordnet_app` can shut
   down the server process.
 - **Patched version:** Not available.
-- **AURORA-VISION status:** ✅ **Not exploitable.**
+- **AURORA-VISION status:** ✅ **Mitigated at runtime.**
   `nltk` is used exclusively for METEOR score tokenisation
   (`nltk.translate.meteor_score`). The vulnerable `nltk.app.wordnet_app`
-  module is never imported or invoked anywhere in this codebase.
-  Verify: `grep -r "wordnet_app\|nltk\.app" --include="*.py" .` returns
-  nothing.
-- **Mitigation:** Do not run `python -m nltk.app.wordnet_app` in any
-  deployment or CI environment. The module is not required by AURORA-VISION.
+  module is never invoked.
+  In addition, `evaluation/caption_evaluator.py` installs a module-level
+  guard on import that **replaces `nltk.app` in `sys.modules`** with a stub
+  that raises `ImportError` on any non-dunder attribute access (e.g.
+  `nltk.app.wordnet_app`), and installs a `sys.meta_path` hook that blocks
+  any fresh `import nltk.app.*` statement. Neither mechanism imports `nltk`
+  at module load time, avoiding import side-effects.
 
 ---
 
@@ -68,12 +70,10 @@ AURORA-VISION.
 
 - **Advisory:** Server-Side Request Forgery in Weights & Biases.
 - **Patched version:** Not available.
-- **AURORA-VISION status:** ✅ **Not applicable.**
-  This advisory has been **withdrawn** by the reporter and is considered
-  a false positive. Furthermore, `wandb` is listed in `requirements.txt`
-  as an optional experiment-tracking dependency but is **not imported** in
-  any AURORA-VISION module.
-  Verify: `grep -r "import wandb\|wandb\." --include="*.py" .` returns nothing.
+- **AURORA-VISION status:** ✅ **Eliminated.** `wandb` has been **removed
+  from `requirements.txt`**. It was never imported in any AURORA-VISION
+  module and the advisory is withdrawn (false positive). Removing it
+  eliminates the dependency entirely.
 
 ---
 

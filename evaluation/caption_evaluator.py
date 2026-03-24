@@ -5,6 +5,59 @@ from utils.logger import get_logger
 
 logger = get_logger("aurora.evaluation.caption")
 
+# Security: block nltk.app.* via sys.modules override + meta_path hook.
+# CVE advisory: nltk ≤3.9.3 allows unauthenticated HTTP POST to shut down
+# the nltk.app.wordnet_app server. No upstream patch is available.
+# Strategy: (1) overwrite sys.modules["nltk.app"] with a blocking stub so
+# cached-module lookup is blocked, and (2) install a meta_path hook so any
+# fresh import attempt is also blocked. Neither approach imports nltk itself,
+# avoiding unrelated import-time side-effects. See SECURITY.md.
+import sys as _sys
+import types as _types
+
+
+class _BlockedNltkApp(_types.ModuleType):
+    """Module stub that blocks non-dunder attribute access on nltk.app."""
+
+    def __getattr__(self, name: str):
+        # Allow Python module-system dunder lookups to fail normally
+        if name.startswith("__") and name.endswith("__"):
+            raise AttributeError(name)
+        raise ImportError(
+            f"nltk.app.{name} is blocked in AURORA-VISION. "
+            "The nltk.app.wordnet_app server poses an unauthenticated "
+            "remote-shutdown risk (CVE, no upstream patch). See SECURITY.md."
+        )
+
+
+class _NltkAppBlocker:
+    """sys.meta_path hook that blocks fresh imports of nltk.app.*."""
+
+    def find_module(self, fullname, path=None):  # noqa: ANN001
+        if fullname == "nltk.app" or fullname.startswith("nltk.app."):
+            return self
+        return None
+
+    def load_module(self, fullname):  # noqa: ANN001
+        raise ImportError(
+            f"{fullname} is blocked in AURORA-VISION. "
+            "The nltk.app.wordnet_app server poses an unauthenticated "
+            "remote-shutdown risk (CVE, no upstream patch). See SECURITY.md."
+        )
+
+
+# Overwrite the sys.modules cache entry (handles already-imported case)
+_sys.modules["nltk.app"] = _BlockedNltkApp("nltk.app")
+
+# Also patch the attribute on the live nltk module if already loaded
+if "nltk" in _sys.modules:
+    _sys.modules["nltk"].app = _sys.modules["nltk.app"]  # type: ignore[attr-defined]
+
+# Install meta_path hook (handles future fresh-import attempts)
+if not any(isinstance(f, _NltkAppBlocker) for f in _sys.meta_path):
+    _sys.meta_path.insert(0, _NltkAppBlocker())
+
+
 
 @dataclass
 class EvalReport:

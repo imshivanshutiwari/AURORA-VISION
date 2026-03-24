@@ -12,26 +12,38 @@ logger = get_logger("aurora.deployment.onnx")
 
 ONNX_OPSET = 17
 
-# Security: onnx.hub.load() is permanently disabled in this module.
-# CVE advisory: ONNX ≤1.20.1 suppresses supply-chain warnings when
-# silent=True is passed to onnx.hub.load(). No upstream patch is available.
-# AURORA-VISION only exports models via torch.onnx.export — hub.load is
-# never called. The guard below ensures this invariant cannot be broken
-# accidentally by future modifications.
-try:
-    import onnx as _onnx_module  # noqa: E402
 
-    if hasattr(_onnx_module, "hub"):
-        class _BlockedHub:  # pragma: no cover
-            def load(self, *args, **kwargs):
-                raise RuntimeError(
-                    "onnx.hub.load() is blocked in AURORA-VISION. "
-                    "Use torch.onnx.export() to produce ONNX models from local weights. "
-                    "See SECURITY.md for details."
-                )
-        _onnx_module.hub = _BlockedHub()
-except ImportError:
-    pass  # onnx not installed; guard is not needed
+def _get_onnx():
+    """Import onnx and apply the onnx.hub.load() security guard.
+
+    Security: onnx.hub.load() is permanently disabled in AURORA-VISION.
+    CVE advisory: ONNX ≤1.20.1 suppresses supply-chain warnings when
+    silent=True is passed to onnx.hub.load(). No upstream patch is available.
+    AURORA-VISION only exports models via torch.onnx.export — hub.load is
+    never called. This function applies the guard lazily (on first use of an
+    export method) to avoid module-level import side-effects. See SECURITY.md.
+    """
+    import onnx  # noqa: PLC0415
+
+    if hasattr(onnx, "hub") and not isinstance(onnx.hub, _BlockedHub):
+        onnx.hub = _BlockedHub()
+    return onnx
+
+
+class _BlockedHub:
+    """Stub that blocks every call to onnx.hub.load()."""
+
+    def load(self, *args, **kwargs):
+        raise RuntimeError(
+            "onnx.hub.load() is blocked in AURORA-VISION. "
+            "Use torch.onnx.export() to produce ONNX models from local weights. "
+            "See SECURITY.md for details."
+        )
+
+    def __getattr__(self, name: str):
+        raise RuntimeError(
+            f"onnx.hub.{name} is blocked in AURORA-VISION. See SECURITY.md."
+        )
 
 
 class ONNXExporter:
@@ -46,6 +58,7 @@ class ONNXExporter:
 
     def export_clip(self, model, save_path: Optional[str] = None) -> str:
         """Export CLIP visual encoder to ONNX."""
+        onnx = _get_onnx()
         save_path = save_path or str(self.output_dir / "clip_vit_l14.onnx")
         dummy = torch.randn(1, 3, 224, 224).to(next(model.parameters()).device)
 
@@ -66,6 +79,7 @@ class ONNXExporter:
 
     def export_swin(self, model, save_path: Optional[str] = None) -> str:
         """Export Swin Transformer to ONNX."""
+        onnx = _get_onnx()
         save_path = save_path or str(self.output_dir / "swin_transformer.onnx")
         dummy = torch.randn(1, 3, 224, 224).to(next(model.parameters()).device)
 
@@ -84,6 +98,7 @@ class ONNXExporter:
 
     def export_cross_modal_transformer(self, model, save_path: Optional[str] = None) -> str:
         """Export CrossModalTransformer to ONNX."""
+        onnx = _get_onnx()
         save_path = save_path or str(self.output_dir / "cross_modal_transformer.onnx")
 
         model.eval()
