@@ -1,0 +1,13 @@
+graph:
+  max_retries: 2
+  quality_threshold: 0.6
+  parallel_nodes: ["visual_node", "audio_node", "ocr_node"]
+
+tools:
+  search_enabled: true
+  max_tool_calls: 10
+
+llm:
+  model: "gpt-4o"
+  temperature: 0.1
+  streaming: true

@@ -1,0 +1,52 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main, "copilot/**" ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Flake8 + Black check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-lint-
+
+      - name: Install lint dependencies
+        run: |
+          pip install --upgrade pip
+          pip install black==26.3.1 flake8==7.0.0
+
+      - name: Run Black (format check)
+        run: |
+          black --check --diff \
+            agents/ api/ audio/ configs/ dashboard/ data/ \
+            deployment/ evaluation/ fusion/ generation/ \
+            ocr/ pipeline/ utils/ visual/ tests/
+
+      - name: Run Flake8 (style check)
+        run: |
+          flake8 \
+            agents/ api/ audio/ data/ deployment/ evaluation/ \
+            fusion/ generation/ ocr/ pipeline/ utils/ visual/ tests/ \
+            --max-line-length=120 \
+            --extend-ignore=E203,W503,E501

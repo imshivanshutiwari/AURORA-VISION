@@ -1,0 +1,115 @@
+/* AURORA-VISION — Vision Ops Center custom styles */
+
+:root {
+  --aurora-bg:        #0d1117;
+  --aurora-surface:   #161b22;
+  --aurora-border:    #30363d;
+  --aurora-teal:      #00bcd4;
+  --aurora-teal-dim:  #007c8a;
+  --aurora-text:      #e6edf3;
+  --aurora-muted:     #8b949e;
+  --aurora-success:   #3fb950;
+  --aurora-warning:   #d29922;
+  --aurora-danger:    #f85149;
+}
+
+body {
+  background-color: var(--aurora-bg);
+  color: var(--aurora-text);
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--aurora-surface) !important;
+  border-bottom: 1px solid var(--aurora-border);
+}
+
+.navbar-brand {
+  color: var(--aurora-teal) !important;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Cards */
+.card {
+  background-color: var(--aurora-surface) !important;
+  border: 1px solid var(--aurora-border) !important;
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--aurora-border) !important;
+  color: var(--aurora-teal) !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--aurora-teal) !important;
+  border-color: var(--aurora-teal) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--aurora-teal-dim) !important;
+  border-color: var(--aurora-teal-dim) !important;
+}
+
+/* Upload area */
+.upload-area {
+  border: 2px dashed var(--aurora-border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--aurora-muted);
+  transition: border-color 0.2s;
+}
+
+.upload-area:hover {
+  border-color: var(--aurora-teal);
+  color: var(--aurora-teal);
+  cursor: pointer;
+}
+
+/* Tabs */
+.nav-tabs .nav-link {
+  color: var(--aurora-muted) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--aurora-teal) !important;
+  border-bottom: 2px solid var(--aurora-teal) !important;
+  background: transparent !important;
+}
+
+/* Metrics badge */
+.metric-badge {
+  display: inline-block;
+  background-color: var(--aurora-surface);
+  border: 1px solid var(--aurora-border);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--aurora-teal);
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--aurora-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--aurora-bg); }
+::-webkit-scrollbar-thumb { background: var(--aurora-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--aurora-teal-dim); }
