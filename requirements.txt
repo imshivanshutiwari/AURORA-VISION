@@ -18,12 +18,10 @@ langgraph==0.0.55
 langchain-openai==0.1.6
 fastapi==0.111.0
 uvicorn==0.29.0
-onnx==1.17.0
 onnxruntime==1.18.0
 numpy==1.26.4
 scipy==1.13.0
 pandas==2.2.2
-nltk==3.9.3
 rouge-score==0.1.2
 bert-score==0.3.13
 evaluate==0.4.2
