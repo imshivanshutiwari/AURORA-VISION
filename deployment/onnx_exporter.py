@@ -12,6 +12,27 @@ logger = get_logger("aurora.deployment.onnx")
 
 ONNX_OPSET = 17
 
+# Security: onnx.hub.load() is permanently disabled in this module.
+# CVE advisory: ONNX ≤1.20.1 suppresses supply-chain warnings when
+# silent=True is passed to onnx.hub.load(). No upstream patch is available.
+# AURORA-VISION only exports models via torch.onnx.export — hub.load is
+# never called. The guard below ensures this invariant cannot be broken
+# accidentally by future modifications.
+try:
+    import onnx as _onnx_module  # noqa: E402
+
+    if hasattr(_onnx_module, "hub"):
+        class _BlockedHub:  # pragma: no cover
+            def load(self, *args, **kwargs):
+                raise RuntimeError(
+                    "onnx.hub.load() is blocked in AURORA-VISION. "
+                    "Use torch.onnx.export() to produce ONNX models from local weights. "
+                    "See SECURITY.md for details."
+                )
+        _onnx_module.hub = _BlockedHub()
+except ImportError:
+    pass  # onnx not installed; guard is not needed
+
 
 class ONNXExporter:
     """
