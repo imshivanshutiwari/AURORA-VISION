@@ -30,3 +30,4 @@ wandb/
 *.pth
 models/
 checkpoints/
+assets/demo_videos/
